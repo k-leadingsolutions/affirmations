@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Affirmations Live Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chat-container {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(60,60,120,0.15);
+            padding: 32px 24px 24px 24px;
+            width: 360px;
+            max-width: 90vw;
+        }
+        .chat-title {
+            text-align: center;
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            color: #6a82fb;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        #chat-box {
+            height: 200px;
+            background: #f0f4ff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(180,180,255,0.08);
+            overflow-y: auto;
+            margin-bottom: 12px;
+            padding: 12px;
+            border: 1px solid #dbe6fd;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 7px 10px;
+            background: #e6e9ff;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(120,120,180,0.04);
+            font-size: 1em;
+        }
+        .chat-message b {
+            color: #6a82fb;
+        }
+        .chat-message.sent {
+            background: #d1ffd6;
+            text-align: right;
+        }
+        .chat-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input[type="text"] {
+            padding: 9px 12px;
+            border-radius: 6px;
+            border: 1px solid #ccd4f3;
+            background: #f7f9fc;
+            font-size: 1em;
+            transition: border 0.2s;
+        }
+        input[type="text"]:focus {
+            border: 1.5px solid #6a82fb;
+            outline: none;
+        }
+        button {
+            padding: 10px 0;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
+            color: white;
+            font-weight: bold;
+            border: none;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 5px;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #fc5c7d 0%, #6a82fb 100%);
+        }
+        .sent-title {
+            font-weight: 600;
+            color: #44a36f;
+            margin-top: 18px;
+            margin-bottom: 7px;
+            letter-spacing: 1px;
+            text-align: left;
+            font-size: 1em;
+        }
+        #sent-list {
+            background: #f9fff9;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(100,220,120,0.07);
+            padding: 10px 6px;
+            border: 1px solid #e3ffe6;
+            font-size: 0.97em;
+            min-height: 48px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .sent-item {
+            color: #2e704a;
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-title">🌈 Affirmations Live Chat 🌈</div>
+    <div id="chat-box"></div>
+    <div class="sent-title">Your Sent Affirmations</div>
+    <div id="sent-list"></div>
+    <div class="chat-inputs">
+        <input id="username" type="text" placeholder="Your name" />
+        <input id="message" type="text" placeholder="Type your affirmation..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+<script>
+    var socket = new SockJS('/ws-chat');
+    var stompClient = Stomp.over(socket);
+
+    // Keep track of sent affirmations
+    var sentAffirmations = [];
+
+    // Store username for this session
+    var currentUsername = "";
+
+    stompClient.connect({}, function(frame) {
+        stompClient.subscribe('/topic/messages', function(chatMsg) {
+            var msg = JSON.parse(chatMsg.body);
+            var chatBox = document.getElementById('chat-box');
+            var msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message';
+            if (msg.username === currentUsername) {
+                msgDiv.classList.add('sent');
+            }
+            msgDiv.innerHTML = `<b>${escapeHtml(msg.username)}:</b> ${escapeHtml(msg.message)}`;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    });
+
+    function sendMessage() {
+        var usernameInput = document.getElementById('username');
+        var messageInput = document.getElementById('message');
+        var username = usernameInput.value.trim();
+        var message = messageInput.value.trim();
+
+        if (!username || !message) {
+            alert('Please enter both your name and affirmation.');
+            return;
+        }
+        currentUsername = username;
+        stompClient.send("/app/send", {}, JSON.stringify({username, message}));
+        messageInput.value = '';
+
+        // Add to sent affirmations and update UI
+        sentAffirmations.push(message);
+        updateSentList();
+    }
+
+    function updateSentList() {
+        var sentList = document.getElementById('sent-list');
+        sentList.innerHTML = "";
+        sentAffirmations.forEach(function(msg) {
+            var item = document.createElement('div');
+            item.className = 'sent-item';
+            item.textContent = msg;
+            sentList.appendChild(item);
+        });
+        sentList.scrollTop = sentList.scrollHeight;
+    }
+
+    // Simple escape to avoid HTML injection
+    function escapeHtml(text) {
+        return text.replace(/[<>&"]/g, function(c) {
+            return {'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'}[c];
+        });
+    }
+</script>
+</body>
+</html>
