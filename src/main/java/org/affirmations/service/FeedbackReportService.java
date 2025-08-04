@@ -1,9 +1,9 @@
 package org.affirmations.service;
 
-import org.affirmations.model.Feedback;
-import org.affirmations.model.Report;
+import org.affirmations.dto.FeedbackDto;
+import org.affirmations.dto.ReportDto;
 
 public interface FeedbackReportService {
-    String submitFeedback(String username, Feedback feedback);
-    String submitReport(String username, Report report);
+    String submitFeedback(String username, FeedbackDto feedback);
+    String submitReport(String username, ReportDto report);
 }

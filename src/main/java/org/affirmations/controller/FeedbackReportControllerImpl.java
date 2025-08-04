@@ -1,8 +1,8 @@
 package org.affirmations.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.affirmations.model.Feedback;
-import org.affirmations.model.Report;
+import org.affirmations.dto.FeedbackDto;
+import org.affirmations.dto.ReportDto;
 import org.affirmations.service.FeedbackReportService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -26,7 +26,7 @@ public class FeedbackReportControllerImpl implements FeedbackReportController {
     @PostMapping("/feedback")
     @PreAuthorize("isAuthenticated()")
     @Override
-    public String submitFeedback(@CurrentSecurityContext(expression = "authentication") Authentication auth, @RequestBody Feedback feedback) {
+    public String submitFeedback(@CurrentSecurityContext(expression = "authentication") Authentication auth, @RequestBody FeedbackDto feedback) {
         return service.submitFeedback(auth.getName(), feedback);
     }
 
@@ -34,7 +34,7 @@ public class FeedbackReportControllerImpl implements FeedbackReportController {
     @PostMapping("/report")
     @PreAuthorize("isAuthenticated()")
     @Override
-    public String submitReport(@CurrentSecurityContext(expression = "authentication") Authentication auth, @RequestBody Report report) {
+    public String submitReport(@CurrentSecurityContext(expression = "authentication") Authentication auth, @RequestBody ReportDto report) {
         return service.submitReport(auth.getName(), report);
     }
 }

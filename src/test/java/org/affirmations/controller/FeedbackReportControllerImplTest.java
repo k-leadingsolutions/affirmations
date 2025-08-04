@@ -1,14 +1,14 @@
 package org.affirmations.controller;
 
-import org.affirmations.model.Feedback;
-import org.affirmations.model.Report;
+import org.affirmations.dto.FeedbackDto;
+import org.affirmations.dto.ReportDto;
 import org.affirmations.service.FeedbackReportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class FeedbackReportControllerImplTest {
 
@@ -26,23 +26,23 @@ class FeedbackReportControllerImplTest {
 
     @Test
     void testSubmitFeedback() {
-        Feedback feedback = new Feedback();
-        when(service.submitFeedback(eq("testuser"), eq(feedback))).thenReturn("Thank you for your feedback!");
+        FeedbackDto dto = new FeedbackDto();
+        when(service.submitFeedback(eq("testuser"), eq(dto))).thenReturn("Thank you for your feedback!");
 
-        String result = controller.submitFeedback(auth, feedback);
+        String result = controller.submitFeedback(auth, dto);
 
-        verify(service, times(1)).submitFeedback("testuser", feedback);
+        verify(service, times(1)).submitFeedback("testuser", dto);
         assertEquals("Thank you for your feedback!", result);
     }
 
     @Test
     void testSubmitReport() {
-        Report report = new Report();
-        when(service.submitReport(eq("testuser"), eq(report))).thenReturn("Your report has been submitted.");
+        ReportDto dto = new ReportDto();
+        when(service.submitReport(eq("testuser"), eq(dto))).thenReturn("Your report has been submitted.");
 
-        String result = controller.submitReport(auth, report);
+        String result = controller.submitReport(auth, dto);
 
-        verify(service, times(1)).submitReport("testuser", report);
+        verify(service, times(1)).submitReport("testuser", dto);
         assertEquals("Your report has been submitted.", result);
     }
 }

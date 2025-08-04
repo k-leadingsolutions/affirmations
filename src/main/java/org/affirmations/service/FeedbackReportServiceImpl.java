@@ -1,6 +1,8 @@
 package org.affirmations.service;
 
 import jakarta.transaction.Transactional;
+import org.affirmations.dto.FeedbackDto;
+import org.affirmations.dto.ReportDto;
 import org.affirmations.model.Feedback;
 import org.affirmations.model.Report;
 import org.affirmations.repository.FeedbackRepository;
@@ -24,20 +26,20 @@ public class FeedbackReportServiceImpl implements FeedbackReportService {
     }
 
     @Override
-    public String submitFeedback(String username, Feedback feedback) {
+    public String submitFeedback(String username, FeedbackDto dto) {
         logger.debug("Submitting feedback from user: {}", username);
-        feedback.setUsername(username);
-        feedback.setCreatedAt(String.valueOf(System.currentTimeMillis()));
-        Feedback savedFeedback = feedbackRepository.save(feedback);
+        dto.setUsername(username);
+        dto.setCreatedAt(String.valueOf(System.currentTimeMillis()));
+        Feedback savedFeedback = feedbackRepository.save(FeedbackDto.toModel(dto));
         logger.info("Feedback submitted. ID: {} by user: {}", savedFeedback.getId(), username);
         return "Thank you for your feedback!";
     }
 
     @Override
-    public String submitReport(String username, Report report) {
+    public String submitReport(String username, ReportDto dto) {
         logger.debug("Submitting report from user: {}", username);
-        report.setUsername(username);
-        Report savedReport = reportRepository.save(report);
+        dto.setUsername(username);
+        Report savedReport = reportRepository.save(ReportDto.toModel(dto));
         logger.info("Report submitted. ID: {} by user: {}", savedReport.getId(), username);
         return "Your report has been submitted.";
     }
