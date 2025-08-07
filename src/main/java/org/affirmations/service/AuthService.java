@@ -1,6 +1,8 @@
 package org.affirmations.service;
 
+import org.affirmations.dto.AuthResponseDto;
+
 public interface AuthService {
-    String register(String username, String password);
-    String login(String username, String password);
+    AuthResponseDto register(String username, String password);
+    AuthResponseDto login(String username, String password);
 }

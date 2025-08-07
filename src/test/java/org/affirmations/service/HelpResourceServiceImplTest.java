@@ -55,7 +55,7 @@ class HelpResourceServiceImplTest {
 
         List<HelpResource> result = helpResourceService.findByType(null);
 
-        // saveAll should be called
+        //verify that saveAll is called
         verify(helpResourceRepository).saveAll(anyList());
         verify(helpResourceRepository).findAll();
         assertEquals(expected, result);

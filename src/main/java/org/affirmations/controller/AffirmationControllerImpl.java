@@ -1,6 +1,7 @@
 package org.affirmations.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
 import org.affirmations.dto.AffirmationDto;
 import org.affirmations.service.AffirmationService;
 import org.springframework.http.HttpStatus;
@@ -16,18 +17,15 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/affirmations")
+@RequiredArgsConstructor
 public class AffirmationControllerImpl {
 
     private final AffirmationService service;
 
-    public AffirmationControllerImpl(AffirmationService service) {
-        this.service = service;
-    }
-
     @Operation(summary = "Get all affirmations")
     @GetMapping
     public List<AffirmationDto> getAll() {
-        return service.getAll().stream()
+        return service.findAll().stream()
                 .map(AffirmationDto::fromModel)
                 .collect(Collectors.toList());
     }

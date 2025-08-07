@@ -43,11 +43,11 @@ class AffirmationServiceImplTest {
     }
 
     @Test
-    void testGetAll() {
+    void testFindAll() {
         List<Affirmation> generated = AffirmationGenerator.generatePositiveAffirmations("system");
         when(affirmationRepository.findAll()).thenReturn(generated);
 
-        List<Affirmation> result = affirmationService.getAll();
+        List<Affirmation> result = affirmationService.findAll();
 
         verify(affirmationRepository).saveAll(anyList());
         verify(affirmationRepository).findAll();

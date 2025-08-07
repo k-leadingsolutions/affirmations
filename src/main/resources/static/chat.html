@@ -32,6 +32,38 @@
             letter-spacing: 1px;
             font-weight: 600;
         }
+        #daily-affirmation-section {
+            background: #fffbe6;
+            border: 1px solid #ffeaa7;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(255, 223, 100, 0.10);
+            padding: 16px 14px 14px 14px;
+            margin-bottom: 22px;
+            text-align: center;
+        }
+        .daily-label {
+            font-size: 1.05em;
+            font-weight: 500;
+            color: #ffbe76;
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+        .daily-message {
+            font-size: 1.18em;
+            color: #6a82fb;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .daily-category {
+            font-size: 0.98em;
+            color: #636e72;
+            font-style: italic;
+            margin-bottom: 2px;
+        }
+        .daily-timestamp {
+            font-size: 0.88em;
+            color: #b2bec3;
+        }
         #chat-box {
             height: 200px;
             background: #f0f4ff;
@@ -62,7 +94,7 @@
             flex-direction: column;
             gap: 10px;
         }
-        input[type="text"] {
+        input[type="text"], input[type="password"] {
             padding: 9px 12px;
             border-radius: 6px;
             border: 1px solid #ccd4f3;
@@ -70,7 +102,7 @@
             font-size: 1em;
             transition: border 0.2s;
         }
-        input[type="text"]:focus {
+        input[type="text"]:focus, input[type="password"]:focus {
             border: 1.5px solid #6a82fb;
             outline: none;
         }
@@ -120,103 +152,391 @@
             color: #6c757d;
             margin-top: 2px;
         }
+        /* Login/Register Modal */
+        .modal-bg {
+            position: fixed;
+            left: 0; top: 0; right: 0; bottom: 0;
+            z-index: 1000;
+            background: rgba(0,0,0,0.10);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(60,60,120,0.25);
+            padding: 28px 30px 22px 30px;
+            width: 320px;
+            max-width: 96vw;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .modal-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #6a82fb;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .modal-switch {
+            color: #444;
+            font-size: 0.98em;
+            margin-top: 4px;
+            text-align: center;
+        }
+        .modal-switch button {
+            background: none;
+            border: none;
+            color: #fc5c7d;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 0 0 4px;
+        }
+        .modal-error {
+            color: #fc5c7d;
+            font-size: 0.96em;
+            text-align: center;
+        }
+        .logout-section {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logout-section span {
+            margin-right: 10px;
+            color: #6a82fb;
+            font-size: 1em;
+            font-weight: 500;
+        }
+        .logout-section button {
+            background: #fc5c7d;
+            background: linear-gradient(90deg, #fc5c7d 0%, #6a82fb 100%);
+            color: #fff;
+            font-size: 0.98em;
+            font-weight: 600;
+            padding: 6px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 0;
+        }
+        .logout-section button:hover {
+            background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
+        }
+        /* Fix for register popup always on top and centered */
+        #register-success-popup {
+            z-index: 2000 !important;
+            display: none;
+            position: fixed;
+            left: 0; top: 0; right: 0; bottom: 0;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
-<div class="chat-container">
+<div class="chat-container" id="main-container" style="display: none;">
+    <div class="logout-section" id="logout-section" style="display:none;">
+        <span id="user-display"></span>
+        <button onclick="logout()">Logout</button>
+    </div>
     <div class="chat-title">🌈 Affirmations Live Chat 🌈</div>
+    <div id="daily-affirmation-section">
+        <div class="daily-label">🌞 Daily Affirmation</div>
+        <div class="daily-message" id="daily-message">Loading...</div>
+        <div class="daily-category" id="daily-category"></div>
+        <div class="daily-timestamp" id="daily-timestamp"></div>
+    </div>
     <div id="chat-box"></div>
     <div class="sent-title">Your Sent Affirmations</div>
     <div id="sent-list"></div>
     <div class="chat-inputs">
-        <input id="username" type="text" placeholder="Your name" />
         <input id="message" type="text" placeholder="Type your affirmation..." />
         <button onclick="sendMessage()">Send</button>
     </div>
 </div>
+<!-- Login/Register Modal -->
+<div class="modal-bg" id="auth-modal-bg">
+    <form class="modal" id="auth-modal" onsubmit="return false;">
+        <div class="modal-title" id="modal-title">Login</div>
+        <input type="text" id="auth-username" placeholder="Username" autocomplete="username" required />
+        <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password" required />
+        <button type="submit" id="auth-submit-btn">Login</button>
+        <div class="modal-error" id="auth-error"></div>
+        <div class="modal-switch" id="switch-to-register">
+            Don't have an account? <button type="button" id="register-btn">Register</button>
+        </div>
+        <div class="modal-switch" id="switch-to-login" style="display:none;">
+            Already have an account? <button type="button" id="login-btn">Login</button>
+        </div>
+    </form>
+</div>
+<!-- Registration Success Popup -->
+<div class="modal-bg" id="register-success-popup" style="display:none; align-items: center; justify-content: center; z-index:2000;">
+    <div class="modal" style="text-align:center;">
+        <div style="font-size:1.5em; color: #44a36f; margin-bottom:12px;">🎉 Registration Successful!</div>
+        <div style="margin-bottom:16px;">You can now log in with your credentials.</div>
+        <button onclick="closeRegisterSuccessPopup()">OK</button>
+    </div>
+</div>
 <script>
-    var socket = new SockJS('/ws-chat');
-    var stompClient = Stomp.over(socket);
+    document.addEventListener('DOMContentLoaded', function() {
+        //  Authentication Logic
+        let isLoggedIn = false;
+        let authToken = null;
+        let currentUsername = null;
+        let authMode = "login"; // or "register"
 
-    // Keep track of sent affirmations
-    var sentAffirmations = [];
-
-    // Store username for this session
-    var currentUsername = "";
-
-    stompClient.connect({}, function(frame) {
-        stompClient.subscribe('/topic/messages', function(chatMsg) {
-            var msg = JSON.parse(chatMsg.body);
-            var chatBox = document.getElementById('chat-box');
-            var msgDiv = document.createElement('div');
-            msgDiv.className = 'chat-message';
-            if (msg.username === currentUsername) {
-                msgDiv.classList.add('sent');
+        function switchAuthMode(mode) {
+            authMode = mode;
+            document.getElementById('auth-error').textContent = '';
+            if (mode === 'register') {
+                document.getElementById('modal-title').textContent = "Register";
+                document.getElementById('auth-submit-btn').textContent = "Register";
+                document.getElementById('switch-to-register').style.display = "none";
+                document.getElementById('switch-to-login').style.display = "";
+            } else {
+                document.getElementById('modal-title').textContent = "Login";
+                document.getElementById('auth-submit-btn').textContent = "Login";
+                document.getElementById('switch-to-register').style.display = "";
+                document.getElementById('switch-to-login').style.display = "none";
             }
-            msgDiv.innerHTML = `<b>${escapeHtml(msg.username)}:</b> ${escapeHtml(msg.message)}
-                <span class="timestamp">${formatTimestamp(msg.timestamp)}</span>`;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        });
-    });
-
-    function sendMessage() {
-        var usernameInput = document.getElementById('username');
-        var messageInput = document.getElementById('message');
-        var username = usernameInput.value.trim();
-        var message = messageInput.value.trim();
-
-        if (!username || !message) {
-            alert('Please enter both your name and affirmation.');
-            return;
         }
-        currentUsername = username;
-        stompClient.send("/app/send", {}, JSON.stringify({username, message}));
-        messageInput.value = '';
-
-        // Add to sent affirmations and update UI
-        sentAffirmations.push(message);
-        updateSentList();
-    }
-
-    function updateSentList() {
-        var sentList = document.getElementById('sent-list');
-        sentList.innerHTML = "";
-        sentAffirmations.forEach(function(msg) {
-            var item = document.createElement('div');
-            item.className = 'sent-item';
-            item.textContent = msg;
-            sentList.appendChild(item);
+        // Attach switch listeners (no inline onClicks)
+        document.getElementById('register-btn').addEventListener('click', function() {
+            switchAuthMode('register');
         });
-        sentList.scrollTop = sentList.scrollHeight;
-    }
-
-    // Simple escape to avoid HTML injection
-    function escapeHtml(text) {
-        return text.replace(/[<>&"]/g, function(c) {
-            return {'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'}[c];
+        document.getElementById('login-btn').addEventListener('click', function() {
+            switchAuthMode('login');
         });
-    }
 
-    // Format timestamp for display
-    function formatTimestamp(ts) {
-        if (!ts) return '';
-        try {
-            // Try ISO8601 format
-            var date = new Date(ts);
-            if (!isNaN(date.getTime())) {
-                // Example: Aug 04, 2025 11:45
-                return date.toLocaleString(undefined, {
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+        // Simulate JWT storage in localStorage for SPA feel
+        function saveToken(token, username) {
+            isLoggedIn = true;
+            authToken = token;
+            currentUsername = username;
+            localStorage.setItem('affirmations_jwt', token);
+            localStorage.setItem('affirmations_user', username);
+        }
+        function clearToken() {
+            isLoggedIn = false;
+            authToken = null;
+            currentUsername = null;
+            localStorage.removeItem('affirmations_jwt');
+            localStorage.removeItem('affirmations_user');
+        }
+        function loadToken() {
+            const token = localStorage.getItem('affirmations_jwt');
+            const username = localStorage.getItem('affirmations_user');
+            if (token && username) {
+                isLoggedIn = true;
+                authToken = token;
+                currentUsername = username;
             }
-        } catch(e){}
-        return ts; // fallback: show raw string
-    }
+        }
+
+        document.getElementById('auth-modal').onsubmit = async function(event) {
+            event.preventDefault();
+            const username = document.getElementById('auth-username').value.trim();
+            const password = document.getElementById('auth-password').value;
+            if (!username || !password) {
+                document.getElementById('auth-error').textContent = "Please enter both fields.";
+                return false;
+            }
+            let url, body;
+            if (authMode === "login") {
+                url = "/api/auth/login";
+                body = { username, password };
+            } else {
+                url = "/api/auth/register";
+                body = { username, password };
+            }
+            document.getElementById('auth-submit-btn').disabled = true;
+            document.getElementById('auth-error').textContent = "";
+            try {
+                const res = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body)
+                });
+                let data = null;
+                let isJson = false;
+                try {
+                    data = await res.clone().json();
+                    isJson = true;
+                } catch {
+                    data = await res.text();
+                    isJson = false;
+                }
+                if (authMode === "register") {
+                    if (res.ok && isJson && data.token) {
+                        saveToken(data.token, username);
+                        onLoginSuccess();
+                    } else if (res.ok) {
+                        document.getElementById('auth-modal-bg').style.display = "none";
+                        document.getElementById('register-success-popup').style.display = "flex";
+                    } else {
+                        document.getElementById('auth-error').textContent =
+                            (isJson && data.message) ? data.message : (data || "Registration failed.");
+                    }
+                } else { // login
+                    if (res.ok && isJson && data.token) {
+                        saveToken(data.token, username);
+                        onLoginSuccess();
+                    } else {
+                        document.getElementById('auth-error').textContent = (isJson && data.message) ? data.message : (data || "Authentication failed.");
+                    }
+                }
+            } catch(e) {
+                document.getElementById('auth-error').textContent = "Server error.";
+            }
+            document.getElementById('auth-submit-btn').disabled = false;
+            return false;
+        };
+
+        window.logout = function() {
+            clearToken();
+            location.reload();
+        };
+
+        window.closeRegisterSuccessPopup = function() {
+            document.getElementById('register-success-popup').style.display = "none";
+            document.getElementById('auth-modal-bg').style.display = "flex";
+            switchAuthMode('login');
+        };
+
+        function onLoginSuccess() {
+            document.getElementById('auth-modal-bg').style.display = "none";
+            document.getElementById('main-container').style.display = "";
+            document.getElementById('logout-section').style.display = "";
+            document.getElementById('user-display').textContent = "👤 " + currentUsername;
+            connectChat();
+            fetchDailyAffirmation();
+        }
+
+        // On page load, check for token
+        (function() {
+            loadToken();
+            if (isLoggedIn) {
+                onLoginSuccess();
+            } else {
+                document.getElementById('auth-modal-bg').style.display = "flex";
+                document.getElementById('main-container').style.display = "none";
+            }
+        })();
+
+        // --- Chat + Affirmations Logic ---
+        var stompClient = null;
+        var socket = null;
+        var sentAffirmations = [];
+
+        function connectChat() {
+            socket = new SockJS('/ws-chat');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({ "Authorization": "Bearer " + authToken }, function(frame) {
+                // Subscribe to chat messages
+                stompClient.subscribe('/topic/messages', function(chatMsg) {
+                    var msg = JSON.parse(chatMsg.body);
+                    var chatBox = document.getElementById('chat-box');
+                    var msgDiv = document.createElement('div');
+                    msgDiv.className = 'chat-message';
+                    if (msg.username === currentUsername) {
+                        msgDiv.classList.add('sent');
+                    }
+                    msgDiv.innerHTML = `<b>${escapeHtml(msg.username)}:</b> ${escapeHtml(msg.message)}
+                        <span class="timestamp">${formatTimestamp(msg.timestamp)}</span>`;
+                    chatBox.appendChild(msgDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                });
+
+                // Subscribe to daily affirmation topic for live updates
+                stompClient.subscribe('/topic/daily-affirmation', function(affirmationMsg) {
+                    var a = JSON.parse(affirmationMsg.body);
+                    setDailyAffirmation(a);
+                });
+            });
+        }
+
+        window.sendMessage = function() {
+            var messageInput = document.getElementById('message');
+            var message = messageInput.value.trim();
+
+            if (!message) {
+                alert('Please enter your affirmation.');
+                return;
+            }
+            if (!stompClient || !isLoggedIn) {
+                alert('You must be logged in to send messages.');
+                return;
+            }
+            stompClient.send("/app/send", {
+                "Authorization": "Bearer " + authToken
+            }, JSON.stringify({
+                username: currentUsername,
+                message
+            }));
+            messageInput.value = '';
+
+            // Add to sent affirmations and update UI
+            sentAffirmations.push(message);
+            updateSentList();
+        };
+
+        function updateSentList() {
+            var sentList = document.getElementById('sent-list');
+            sentList.innerHTML = "";
+            sentAffirmations.forEach(function(msg) {
+                var item = document.createElement('div');
+                item.className = 'sent-item';
+                item.textContent = msg;
+                sentList.appendChild(item);
+            });
+            sentList.scrollTop = sentList.scrollHeight;
+        }
+
+        // --- Daily Affirmation on Load ---
+        function fetchDailyAffirmation() {
+            fetch('/api/daily-affirmation', {
+                headers: authToken ? { "Authorization": "Bearer " + authToken } : {}
+            })
+                .then(res => res.json())
+                .then(setDailyAffirmation)
+                .catch(() => setDailyAffirmation({ message: "No daily affirmation loaded yet." }));
+        }
+        function setDailyAffirmation(a) {
+            document.getElementById('daily-message').textContent = a.message || '';
+            document.getElementById('daily-category').textContent = a.category ? `#${a.category}` : '';
+            document.getElementById('daily-timestamp').textContent = a.timestamp ? formatTimestamp(a.timestamp) : '';
+        }
+
+        // --- Helpers ---
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[<>&"]/g, function(c) {
+                return {'<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;'}[c];
+            });
+        }
+
+        function formatTimestamp(ts) {
+            if (!ts) return '';
+            try {
+                var date = new Date(ts);
+                if (!isNaN(date.getTime())) {
+                    return date.toLocaleString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            } catch(e){}
+            return ts;
+        }
+    });
 </script>
 </body>
 </html>

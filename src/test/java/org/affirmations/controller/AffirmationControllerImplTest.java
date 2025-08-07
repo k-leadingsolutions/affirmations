@@ -56,7 +56,7 @@ class AffirmationControllerImplTest {
                 new Affirmation(2L, "Take care of your mind", "mental health", "user2")
         );
 
-        Mockito.when(affirmationService.getAll()).thenReturn(affirmationList);
+        Mockito.when(affirmationService.findAll()).thenReturn(affirmationList);
         Mockito.when(affirmationService.getByCategory("general")).thenReturn(
                 Collections.singletonList(affirmationList.get(0))
         );

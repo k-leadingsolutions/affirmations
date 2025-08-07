@@ -1,5 +1,8 @@
 package org.affirmations.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.affirmations.dto.AuthResponseDto;
 import org.affirmations.model.User;
 import org.affirmations.repository.UserRepository;
 import org.affirmations.security.JwtUtil;
@@ -8,45 +11,47 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
-
     @Override
-    public String register(String username, String password) {
-        logger.debug("Attempting to register user: {}", username);
+    public AuthResponseDto register(String username, String password) {
+        log.debug("Attempting to register user: {}", username);
         if (userRepository.findByUsername(username).isPresent()) {
-            logger.warn("Registration failed: Username '{}' already taken", username);
-            return "Username already taken";
+            log.warn("Registration failed: Username '{}' already taken", username);
+            return AuthResponseDto.builder()
+                    .message("Username already taken")
+                    .build();
         }
         User user = new User(username, passwordEncoder.encode(password), "USER");
         userRepository.save(user);
-        logger.info("User '{}' registered successfully", username);
-        return "Registered successfully";
+        log.info("User '{}' registered successfully", username);
+        return AuthResponseDto.builder()
+                .message("Registered successfully")
+                .build();
     }
 
     @Override
-    public String login(String username, String password) {
-        logger.debug("User '{}' attempting to login", username);
+    public AuthResponseDto login(String username, String password) {
+        log.debug("User '{}' attempting to login", username);
         User user = userRepository.findByUsername(username).orElse(null);
         if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            logger.info("User '{}' authenticated successfully", username);
+            log.info("User '{}' authenticated successfully", username);
             String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-            logger.debug("JWT token generated for user '{}'", username);
-            return token;
+            log.debug("JWT token generated for user '{}'", username);
+            return AuthResponseDto.builder()
+                    .token(token)
+                    .build();
         }
-        logger.warn("Login failed for user '{}': Invalid credentials", username);
-        return "Invalid credentials";
+        log.warn("Login failed for user '{}': Invalid credentials", username);
+        return AuthResponseDto.builder()
+                .message("Invalid credentials")
+                .build();
     }
 }

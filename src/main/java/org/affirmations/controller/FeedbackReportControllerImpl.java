@@ -1,6 +1,7 @@
 package org.affirmations.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import lombok.RequiredArgsConstructor;
 import org.affirmations.dto.FeedbackDto;
 import org.affirmations.dto.ReportDto;
 import org.affirmations.service.FeedbackReportService;
@@ -14,13 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class FeedbackReportControllerImpl implements FeedbackReportController {
 
     private final FeedbackReportService service;
-
-    public FeedbackReportControllerImpl(FeedbackReportService service) {
-        this.service = service;
-    }
 
     @Operation(summary = "Submit feedback")
     @PostMapping("/feedback")

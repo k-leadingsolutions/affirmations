@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface AffirmationService {
     Affirmation findById(Long id);
-    List<Affirmation> getAll();
+    List<Affirmation> findAll();
     Affirmation getRandom();
     List<Affirmation> getByCategory(String category);
     List<Affirmation> getPersonalized(String username);

@@ -1,6 +1,8 @@
 package org.affirmations.service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.affirmations.dto.FeedbackDto;
 import org.affirmations.dto.ReportDto;
 import org.affirmations.model.Feedback;
@@ -13,34 +15,29 @@ import org.slf4j.LoggerFactory;
 
 @Transactional
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class FeedbackReportServiceImpl implements FeedbackReportService {
-
-    private static final Logger logger = LoggerFactory.getLogger(FeedbackReportServiceImpl.class);
 
     private final FeedbackRepository feedbackRepository;
     private final ReportRepository reportRepository;
 
-    public FeedbackReportServiceImpl(FeedbackRepository feedbackRepository, ReportRepository reportRepository) {
-        this.feedbackRepository = feedbackRepository;
-        this.reportRepository = reportRepository;
-    }
-
     @Override
     public String submitFeedback(String username, FeedbackDto dto) {
-        logger.debug("Submitting feedback from user: {}", username);
+        log.debug("Submitting feedback from user: {}", username);
         dto.setUsername(username);
         dto.setCreatedAt(String.valueOf(System.currentTimeMillis()));
         Feedback savedFeedback = feedbackRepository.save(FeedbackDto.toModel(dto));
-        logger.info("Feedback submitted. ID: {} by user: {}", savedFeedback.getId(), username);
+        log.info("Feedback submitted. ID: {} by user: {}", savedFeedback.getId(), username);
         return "Thank you for your feedback!";
     }
 
     @Override
     public String submitReport(String username, ReportDto dto) {
-        logger.debug("Submitting report from user: {}", username);
+        log.debug("Submitting report from user: {}", username);
         dto.setUsername(username);
         Report savedReport = reportRepository.save(ReportDto.toModel(dto));
-        logger.info("Report submitted. ID: {} by user: {}", savedReport.getId(), username);
+        log.info("Report submitted. ID: {} by user: {}", savedReport.getId(), username);
         return "Your report has been submitted.";
     }
 }

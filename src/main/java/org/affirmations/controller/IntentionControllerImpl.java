@@ -2,6 +2,7 @@ package org.affirmations.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.affirmations.dto.IntentionDto;
 import org.affirmations.service.IntentionService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,12 +15,9 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/intentions")
+@RequiredArgsConstructor
 public class IntentionControllerImpl implements IntentionController{
     private final IntentionService service;
-
-    public IntentionControllerImpl(IntentionService service) {
-        this.service = service;
-    }
 
     @Operation(summary = "Add an intention")
     @PostMapping

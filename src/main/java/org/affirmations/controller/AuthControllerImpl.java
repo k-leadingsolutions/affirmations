@@ -1,32 +1,32 @@
 package org.affirmations.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.RequiredArgsConstructor;
+import org.affirmations.dto.AuthRequestDto;
+import org.affirmations.dto.AuthResponseDto;
 import org.affirmations.service.AuthService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthControllerImpl implements AuthController {
     private final AuthService authService;
-
-    public AuthControllerImpl(AuthService authService) {
-        this.authService = authService;
-    }
 
     @Operation(summary = "Register user")
     @PostMapping("/register")
     @Override
-    public String register(@RequestParam String username, @RequestParam String password) {
-        return authService.register(username, password);
+    public AuthResponseDto register(@RequestBody AuthRequestDto req) {
+        return authService.register(req.getUsername(), req.getPassword());
     }
 
     @Operation(summary = "Login user")
     @PostMapping("/login")
     @Override
-    public String login(@RequestParam String username, @RequestParam String password) {
-        return authService.login(username, password);
+    public AuthResponseDto login(@RequestBody AuthRequestDto req) {
+        return authService.login(req.getUsername(), req.getPassword());
     }
 }

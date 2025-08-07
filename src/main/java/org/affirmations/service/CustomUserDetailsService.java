@@ -1,5 +1,7 @@
 package org.affirmations.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.affirmations.model.User;
 import org.affirmations.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,26 +13,22 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-
-    private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
 
     private final UserRepository userRepository;
 
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.debug("Attempting to load user by username: {}", username);
+        log.debug("Attempting to load user by username: {}", username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> {
-                    logger.warn("User not found with username: {}", username);
+                    log.warn("User not found with username: {}", username);
                     return new UsernameNotFoundException("Not found");
                 });
-        logger.info("User '{}' loaded successfully", username);
+        log.info("User '{}' loaded successfully", username);
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(), user.getPassword(),
                 Collections.singleton(() -> "ROLE_" + user.getRole()));

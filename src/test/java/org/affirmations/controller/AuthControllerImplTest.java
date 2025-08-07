@@ -1,83 +1,93 @@
 package org.affirmations.controller;
 
-import org.affirmations.security.JwtRequestFilter;
-import org.affirmations.security.JwtUtil;
+import org.affirmations.dto.AuthRequestDto;
+import org.affirmations.dto.AuthResponseDto;
 import org.affirmations.service.AuthService;
-import org.affirmations.service.CustomUserDetailsService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.*;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AuthControllerImpl.class)
-@AutoConfigureMockMvc(addFilters = false)
 class AuthControllerImplTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @MockBean
+    @Mock
     private AuthService authService;
-    @MockBean
-    private JwtRequestFilter jwtRequestFilter;
-    @MockBean
-    private CustomUserDetailsService customUserDetailsService;
-    @MockBean
-    private JwtUtil jwtUtil;
+
+    @InjectMocks
+    private AuthControllerImpl authController;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+    }
 
     @Test
-    void registerShouldReturnSuccess() throws Exception {
-        Mockito.when(authService.register(eq("user123"), eq("pass"))).thenReturn("Registered successfully");
+    void testRegister_Success() throws Exception {
+        AuthResponseDto response = AuthResponseDto.builder().message("Registered successfully").build();
+        when(authService.register(any(), any())).thenReturn(response);
+
+        String json = "{\"username\":\"user1\",\"password\":\"pass1234\"}";
 
         mockMvc.perform(post("/api/auth/register")
-                        .param("username", "user123")
-                        .param("password", "pass")
-                        .with(csrf()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Registered successfully"));
+                .andExpect(jsonPath("$.message").value("Registered successfully"));
+
+        verify(authService, times(1)).register("user1", "pass1234");
     }
 
     @Test
-    void registerShouldReturnErrorIfUserExists() throws Exception {
-        Mockito.when(authService.register(eq("existing"), eq("pass"))).thenReturn("Username already taken");
+    void testRegister_UsernameTaken() throws Exception {
+        AuthResponseDto response = AuthResponseDto.builder().message("Username already taken").build();
+        when(authService.register(any(), any())).thenReturn(response);
+
+        String json = "{\"username\":\"user1\",\"password\":\"pass1234\"}";
 
         mockMvc.perform(post("/api/auth/register")
-                        .param("username", "existing")
-                        .param("password", "pass")
-                        .with(csrf()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Username already taken"));
+                .andExpect(jsonPath("$.message").value("Username already taken"));
     }
 
     @Test
-    void loginShouldReturnToken() throws Exception {
-        Mockito.when(authService.login(eq("user"), eq("secret"))).thenReturn("token123");
+    void testLogin_Success() throws Exception {
+        AuthResponseDto response = AuthResponseDto.builder().token("testtokenjwt").build();
+        when(authService.login(any(), any())).thenReturn(response);
+
+        String json = "{\"username\":\"user1\",\"password\":\"pass1234\"}";
 
         mockMvc.perform(post("/api/auth/login")
-                        .param("username", "user")
-                        .param("password", "secret")
-                .with(csrf()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isOk())
-                .andExpect(content().string("token123"));
+                .andExpect(jsonPath("$.token").value("testtokenjwt"));
+
+        verify(authService, times(1)).login("user1", "pass1234");
     }
 
     @Test
-    void loginShouldReturnInvalidCredentials() throws Exception {
-        Mockito.when(authService.login(eq("nouser"), eq("nopass"))).thenReturn("Invalid credentials");
+    void testLogin_InvalidCredentials() throws Exception {
+        AuthResponseDto response = AuthResponseDto.builder().message("Invalid credentials").build();
+        when(authService.login(any(), any())).thenReturn(response);
+
+        String json = "{\"username\":\"user1\",\"password\":\"wrongpass\"}";
 
         mockMvc.perform(post("/api/auth/login")
-                        .param("username", "nouser")
-                        .param("password", "nopass")
-                        .with(csrf()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Invalid credentials"));
+                .andExpect(jsonPath("$.message").value("Invalid credentials"));
     }
 }
