@@ -6,81 +6,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
             min-height: 100vh;
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            font-family: 'Inter', 'Segoe UI', 'Roboto', sans-serif;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         .chat-container {
-            background: rgba(255,255,255,0.95);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(60,60,120,0.15);
-            padding: 32px 24px 24px 24px;
-            width: 360px;
-            max-width: 90vw;
+            background: rgba(255,255,255,0.97);
+            border-radius: 24px;
+            box-shadow: 0 8px 40px 0 rgba(88,101,242,0.10);
+            padding: 40px 28px 30px 28px;
+            width: 390px;
+            max-width: 95vw;
+            position: relative;
+            overflow: hidden;
         }
         .chat-title {
+            font-family: 'Pacifico', cursive;
             text-align: center;
-            font-size: 1.6em;
+            font-size: 2.1em;
             margin-bottom: 20px;
-            color: #6a82fb;
-            letter-spacing: 1px;
-            font-weight: 600;
+            color: #7868e6;
+            letter-spacing: 2px;
+            font-weight: 400;
+            text-shadow: 0 3px 15px #b9b5ff40;
+            background: linear-gradient(90deg, #7868e6 40%, #fc5c7d 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         #daily-affirmation-section {
-            background: #fffbe6;
-            border: 1px solid #ffeaa7;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(255, 223, 100, 0.10);
-            padding: 16px 14px 14px 14px;
-            margin-bottom: 22px;
+            background: linear-gradient(90deg, #fffbe6 60%, #e7f6ea 100%);
+            border: 1.5px solid #ffeaa7;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(255, 223, 100, 0.12);
+            padding: 18px 16px 16px 16px;
+            margin-bottom: 26px;
             text-align: center;
+            animation: fadeIn 1.2s;
+        }
+        @keyframes fadeIn {
+            from {opacity:0; transform: scale(0.97);}
+            to {opacity:1; transform: scale(1);}
         }
         .daily-label {
-            font-size: 1.05em;
-            font-weight: 500;
+            font-size: 1.09em;
+            font-weight: 600;
             color: #ffbe76;
             margin-bottom: 4px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.7px;
         }
         .daily-message {
-            font-size: 1.18em;
-            color: #6a82fb;
-            font-weight: 600;
+            font-size: 1.25em;
+            color: #7868e6;
+            font-weight: 700;
             margin-bottom: 2px;
+            line-height: 1.4;
         }
         .daily-category {
-            font-size: 0.98em;
+            font-size: 1.02em;
             color: #636e72;
             font-style: italic;
             margin-bottom: 2px;
         }
         .daily-timestamp {
-            font-size: 0.88em;
+            font-size: 0.91em;
             color: #b2bec3;
+            margin-top: 3px;
         }
         #chat-box {
-            height: 200px;
-            background: #f0f4ff;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(180,180,255,0.08);
+            height: 220px;
+            background: linear-gradient(120deg, #f0f4ff 0%, #e8e9fd 100%);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(120, 104, 230, 0.05);
             overflow-y: auto;
-            margin-bottom: 12px;
-            padding: 12px;
-            border: 1px solid #dbe6fd;
+            margin-bottom: 16px;
+            padding: 15px 10px 10px 10px;
+            border: 1.5px solid #dbe6fd;
         }
         .chat-message {
-            margin-bottom: 10px;
-            padding: 7px 10px;
+            margin-bottom: 11px;
+            padding: 8px 13px;
             background: #e6e9ff;
-            border-radius: 6px;
-            box-shadow: 0 1px 2px rgba(120,120,180,0.04);
-            font-size: 1em;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(120,120,180,0.06);
+            font-size: 1.04em;
+            position: relative;
+            width: fit-content;
+            max-width: 82%;
+            word-break: break-word;
+            animation: fadeIn 0.8s;
         }
         .chat-message b {
             color: #6a82fb;
@@ -88,47 +108,65 @@
         .chat-message.sent {
             background: #d1ffd6;
             text-align: right;
+            margin-left: auto;
+            color: #28855c;
+        }
+        .chat-message.sent b {
+            color: #44a36f;
+        }
+        .chat-message .timestamp {
+            display: block;
+            font-size: 0.85em;
+            color: #a8a8a8;
+            margin-top: 2px;
         }
         .chat-inputs {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            flex-direction: row;
+            gap: 8px;
+            margin-top: 10px;
         }
         input[type="text"], input[type="password"] {
-            padding: 9px 12px;
-            border-radius: 6px;
-            border: 1px solid #ccd4f3;
+            flex: 1 1 auto;
+            padding: 11px 13px;
+            border-radius: 8px;
+            border: 1.5px solid #ccd4f3;
             background: #f7f9fc;
-            font-size: 1em;
+            font-size: 1.06em;
             transition: border 0.2s;
+            outline: none;
+            margin-right: 0;
+            box-sizing: border-box;
         }
         input[type="text"]:focus, input[type="password"]:focus {
-            border: 1.5px solid #6a82fb;
-            outline: none;
+            border: 2px solid #6a82fb;
+            background: #f4f5ff;
         }
         button {
-            padding: 10px 0;
-            border-radius: 6px;
+            padding: 11px 24px;
+            border-radius: 8px;
             background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
             color: white;
-            font-weight: bold;
+            font-weight: 600;
             border: none;
-            font-size: 1em;
+            font-size: 1.04em;
             cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 5px;
+            transition: background 0.2s, box-shadow 0.2s;
+            margin-top: 0;
+            box-shadow: 0 2px 10px #f3e9fd40;
         }
         button:hover {
             background: linear-gradient(90deg, #fc5c7d 0%, #6a82fb 100%);
+            box-shadow: 0 2px 16px #e6b3e940;
         }
         .sent-title {
-            font-weight: 600;
+            font-weight: 700;
             color: #44a36f;
             margin-top: 18px;
             margin-bottom: 7px;
             letter-spacing: 1px;
             text-align: left;
-            font-size: 1em;
+            font-size: 1.04em;
         }
         #sent-list {
             background: #f9fff9;
@@ -136,37 +174,32 @@
             box-shadow: 0 1px 3px rgba(100,220,120,0.07);
             padding: 10px 6px;
             border: 1px solid #e3ffe6;
-            font-size: 0.97em;
+            font-size: 1em;
             min-height: 48px;
             max-height: 100px;
             overflow-y: auto;
         }
         .sent-item {
-            color: #2e704a;
+            color: #28855c;
             margin-bottom: 4px;
             word-break: break-word;
-        }
-        .timestamp {
-            display: block;
-            font-size: 0.82em;
-            color: #6c757d;
-            margin-top: 2px;
+            font-weight: 500;
         }
         /* Login/Register Modal */
         .modal-bg {
             position: fixed;
             left: 0; top: 0; right: 0; bottom: 0;
             z-index: 1000;
-            background: rgba(0,0,0,0.10);
+            background: rgba(0,0,0,0.13);
             display: flex;
             justify-content: center;
             align-items: center;
         }
         .modal {
             background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(60,60,120,0.25);
-            padding: 28px 30px 22px 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(120,104,230,0.13);
+            padding: 32px 32px 22px 32px;
             width: 320px;
             max-width: 96vw;
             display: flex;
@@ -174,15 +207,17 @@
             gap: 14px;
         }
         .modal-title {
-            font-size: 1.3em;
+            font-size: 1.5em;
             font-weight: bold;
             color: #6a82fb;
             text-align: center;
             margin-bottom: 6px;
+            font-family: 'Pacifico', cursive;
+            letter-spacing: 1px;
         }
         .modal-switch {
             color: #444;
-            font-size: 0.98em;
+            font-size: 1em;
             margin-top: 4px;
             text-align: center;
         }
@@ -193,40 +228,41 @@
             font-weight: bold;
             cursor: pointer;
             padding: 0 0 0 4px;
+            font-family: inherit;
+            font-size: inherit;
         }
         .modal-error {
             color: #fc5c7d;
-            font-size: 0.96em;
+            font-size: 1em;
             text-align: center;
         }
         .logout-section {
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .logout-section span {
             margin-right: 10px;
             color: #6a82fb;
             font-size: 1em;
-            font-weight: 500;
+            font-weight: 600;
         }
         .logout-section button {
             background: #fc5c7d;
             background: linear-gradient(90deg, #fc5c7d 0%, #6a82fb 100%);
             color: #fff;
-            font-size: 0.98em;
-            font-weight: 600;
-            padding: 6px 16px;
+            font-size: 1em;
+            font-weight: 700;
+            padding: 7px 18px;
             border: none;
-            border-radius: 5px;
+            border-radius: 7px;
             cursor: pointer;
             margin-top: 0;
         }
         .logout-section button:hover {
             background: linear-gradient(90deg, #6a82fb 0%, #fc5c7d 100%);
         }
-        /* Fix for register popup always on top and centered */
         #register-success-popup {
             z-index: 2000 !important;
             display: none;
@@ -234,6 +270,10 @@
             left: 0; top: 0; right: 0; bottom: 0;
             justify-content: center;
             align-items: center;
+        }
+        /* Subtle entry animation for all modals and popup */
+        .modal-bg, #register-success-popup {
+            animation: fadeIn 0.7s;
         }
     </style>
 </head>
