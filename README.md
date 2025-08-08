@@ -6,6 +6,19 @@ Includes a real-time chat system using WebSockets. Includes a modern UI for send
 
 ---
 
+![Build Status](https://github.com/k-leadingsolutions/affirmations/actions/workflows/ci.yml/badge.svg)
+
+---
+## Continuous Integration
+
+This project uses [GitHub Actions](https://github.com/features/actions) for CI.
+
+- On every push or PR to `main`, tests and builds are run.
+- The workflow is defined in `.github/workflows/CI.yml`.
+- Test results, coverage reports, and build artifacts are uploaded as CI artifacts.
+- Secrets like `JWT_SECRET` are injected via GitHub Actions and **must not** be committed in the codebase.
+---
+
 ## Features
 
 - **User Registration & JWT Login**
