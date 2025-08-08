@@ -4,7 +4,7 @@ import org.affirmations.dto.ChatMessageDto;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class ChatControllerTest {
+class ChatControllerImplTest {
 
     @Test
     void testSendSetsTimestamp() {

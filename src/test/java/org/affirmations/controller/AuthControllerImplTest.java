@@ -1,6 +1,5 @@
 package org.affirmations.controller;
 
-import org.affirmations.dto.AuthRequestDto;
 import org.affirmations.dto.AuthResponseDto;
 import org.affirmations.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
