@@ -11,6 +11,7 @@ Includes a real-time chat system using WebSockets. Includes a modern UI for send
 - **User Registration & JWT Login**
 - **CRUD for Affirmations, Intentions**
 - **Personalized Recommendations**
+- **Daily Affirmation**
 - **Help Resources (helplines, etc.)**
 - **Feedback & Reporting**
 - **User Stats**
@@ -62,11 +63,16 @@ public ChatMessageDto send(ChatMessageDto message) {
 
 - **Entry Point:**  
   Open [`chat.html`](src/main/resources/static/chat.html) in your browser.
+
 - **Features:**
-   - Enter your name and affirmation; send to live chat.
-   - View all live messages, with your messages highlighted.
-   - See the list of affirmations you've sent.
-   - Modern, mobile-friendly design.
+    - Register and log in for secure access.
+    - Receive and view a daily affirmation in a highlighted panel.
+    - Enter your name and affirmation; send to live chat.
+    - See all live messages instantly, with your own messages highlighted for clarity.
+    - View a personal list of affirmations you've sent.
+    - Modern, vibrant, and mobile-friendly design using gradients and custom fonts.
+    - Responsive interface with animated transitions and visually appealing modals.
+    - Intuitive login/register modals with success popups and error handling.
 
 ---
 
@@ -91,16 +97,16 @@ public ChatMessageDto send(ChatMessageDto message) {
    ```
 
 3. **Access API documentation**  
-   [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+   [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
 
 4. **H2 Database Console**  
-   [http://localhost:8080/h2-console](http://localhost:8080/h2-console)
+   [http://localhost:8081/h2-console](http://localhost:8081/h2-console)
    - JDBC URL: `jdbc:h2:mem:testdb`
    - User: `sa`
    - Password: (blank)
 
 5. **Access Live Chat:**  
-   [http://localhost:8080/chat.html](http://localhost:8080/chat.html)
+   [http://localhost:8081/chat.html](http://localhost:8081/chat.html)
 
 6. **Test WebSocket:**  
    Open multiple browser windows/tabs and send affirmations in real time.
@@ -120,10 +126,10 @@ docker build -t affirmations-app .
 ### Run the container
 
 ```sh
-docker run -p 8080:8080 affirmations-app
+docker run -p 8081:8081 affirmations-app
 ```
 
-The app will be available at [http://localhost:8080](http://localhost:8080).
+The app will be available at [http://localhost:8081](http://localhost:8081).
 
 #### Example `Dockerfile` (placed in the project root):
 
@@ -131,7 +137,7 @@ The app will be available at [http://localhost:8080](http://localhost:8080).
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY target/*.jar app.jar
-EXPOSE 8080
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
@@ -143,11 +149,11 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 1. Register:
     ```sh
-    curl -X POST "http://localhost:8080/api/auth/register?username=user1&password=pass123"
+    curl -X POST "http://localhost:8081/api/auth/register?username=user1&password=pass123"
     ```
 2. Login (returns JWT):
     ```sh
-    curl -X POST "http://localhost:8080/api/auth/login?username=user1&password=pass123"
+    curl -X POST "http://localhost:8081/api/auth/login?username=user1&password=pass123"
     ```
 
 ### Use JWT
@@ -160,13 +166,13 @@ Authorization: Bearer <your-token-here>
 ### Get Affirmations
 
 ```sh
-curl http://localhost:8080/api/affirmations
+curl http://localhost:8081/api/affirmations
 ```
 
 ### Add Daily Intention
 
 ```sh
-curl -X POST "http://localhost:8080/api/intentions" \
+curl -X POST "http://localhost:8081/api/intentions" \
  -H "Authorization: Bearer <token>" \
  -H "Content-Type: application/json" \
  -d '{"intentionText":"Go for a walk","date":"2025-07-31"}'
@@ -175,7 +181,7 @@ curl -X POST "http://localhost:8080/api/intentions" \
 ### Get Help Resources
 
 ```sh
-curl http://localhost:8080/api/help/resources
+curl http://localhost:8081/api/help/resources
 ```
 
 ---
@@ -190,7 +196,7 @@ mvn test
 
 ## API Reference
 
-See [Swagger UI](http://localhost:8080/swagger-ui.html) for full interactive documentation.
+See [Swagger UI](http://localhost:8081/swagger-ui.html) for full interactive documentation.
 
 ---
 
