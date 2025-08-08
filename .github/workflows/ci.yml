@@ -32,6 +32,7 @@ jobs:
       DB_USER: affirmations
       DB_PASSWORD: affirmations
       SPRING_PROFILES_ACTIVE: test
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
     steps:
       - uses: actions/checkout@v4
